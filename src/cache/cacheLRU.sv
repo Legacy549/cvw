@@ -122,7 +122,7 @@ module cacheLRU
   if (NUMWAYS > 2) mux2 #(1) LRUMuxes[NUMWAYS-3:0](CurrLRU[NUMWAYS-3:0], ~WayExpanded[NUMWAYS-3:0], LRUUpdate[NUMWAYS-3:0], NextLRU[NUMWAYS-3:0]);
 
   // Compute next victim way.
-  /*for(node = NUMWAYS-2; node >= NUMWAYS/2; node--) begin
+  for(node = NUMWAYS-2; node >= NUMWAYS/2; node--) begin
     localparam t0 = 2*node - NUMWAYS;
     localparam t1 = t0 + 1;
     assign Intermediate[node] = CurrLRU[node] ? Intermediate[t0] : Intermediate[t1];
@@ -131,10 +131,8 @@ module cacheLRU
     localparam int0 = (NUMWAYS/2-1-node)*2;
     localparam int1 = int0 + 1;
     assign Intermediate[node] = CurrLRU[node] ? int1[LOGNUMWAYS-1:0] : int0[LOGNUMWAYS-1:0];
-  end*/
-LFSR somethingrandom(clk, reset, current);
-
-  
+  end
+  LFSR somethingrandom(clk, reset, current);
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
   binencoder #(NUMWAYS) FirstZeroWayEncoder(FirstZero, FirstZeroWay);
   mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, current, AllValid, VictimWayEnc);
@@ -160,14 +158,14 @@ LFSR somethingrandom(clk, reset, current);
 endmodule
 
 
-module LFSR(parameter NUMWAYS = 4)(input clk, rst, output [NUMWAYS - 1:0] current);
+module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
   logic [NUMWAYS - 1:0] next; 
   logic en; 
   flopenl #(NUMWAYS) state(clk, rst, en, next, 4'b0010, current);
 
   switch (NUMWAYS)
     2:
-      assign next[1] = current[1] ^ current[0];
+      assign next[1] = current[2] ^ current[0];
       assign next[0] = current[1];
       assign en = '1;
     4:
@@ -175,29 +173,29 @@ module LFSR(parameter NUMWAYS = 4)(input clk, rst, output [NUMWAYS - 1:0] curren
       assign next[2:0] = current[3:1];
       assign en = '1;
     8:
-      assign next[7] = current[1] ^ current[2] ^ current[5] ^ current[7];
+      assign next[7] = current[0] ^ current[2] ^ current[3] ^ current[4];
       assign next[6:0] = current[7:1];
       assign en = '1;
     16:
-      assign next[15] = current[0] ^ current[2] ^ current[4] ^ current[7] ^ current[9] ^ current[12] ^ current[14] ^ current[15];
+      assign next[15] = current[1] ^ current[2] ^ current[4] ^ current[5];
       assign next[14:0] = current[15:1];
       assign en = '1;
     32:
-      assign next[31] = current[2] ^ current[3] ^ current[4] ^ current[6] ^ current[8] ^ current[9] ^ current[12] ^ current[14]
-                        ^ current[15] ^ current[18] ^ current[19] ^ current[20] ^ current[21] ^ current[23] ^ current[26] ^ current[28] ^ current[29] ^ current[31];
+      assign next[31] = current[0] ^ current[3] ^ current[5] ^ current[6];
       assign next[30:0] = current[31:1];
       assign en = '1;
     64:
-      assign next[63] = current[63] ^ current[0];
+      assign next[63] = current[1] ^ current[2] ^ current[5] ^ current[7];
       assign next[62:0] = current[63:1];
       assign en = '1;
     128:
-      assign next[127] = current[127] ^ current[0];
+      assign next[127] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
       assign next[126:0] = current[127:1];
       assign en = '1;
     default: en = 1'b0;
 
 //hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
+//its done -Present Karson (as of 4/30/2024)
 endmodule 
 
 module flopenl #(parameter WIDTH = 8, parameter type TYPE=logic [WIDTH-1:0]) (
