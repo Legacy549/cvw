@@ -67,6 +67,7 @@ localparam DTLB_ENTRIES = 32'd32;
 
 // Cache configuration.  Sizes should be a power of two
 // typical configuration 4 ways, 4096 bytes per way, 256 bit or more lines
+//change the WAYSIZEINBYTES to 256kib
 localparam DCACHE_NUMWAYS = 32'd4;
 localparam DCACHE_WAYSIZEINBYTES = 32'd4096;
 localparam DCACHE_LINELENINBITS = 32'd512;

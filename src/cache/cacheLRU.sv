@@ -137,6 +137,8 @@ module cacheLRU
   mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, current, AllValid, VictimWayEnc);
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 
+//anythong asociated ithe intermediate. Make separate file for LFSR/cachernd.sv
+
   // LRU storage must be reset for modelsim to run. However the reset value does not actually matter in practice.
   // This is a two port memory.
   // Every cycle must read from CacheSetData and each load/store must write the new LRU.
