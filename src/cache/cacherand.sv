@@ -1,34 +1,4 @@
-///////////////////////////////////////////
-// cacheLRU.sv
-//
-// Written: Rose Thompson ross1728@gmail.com
-// Created: 20 July 2021
-// Modified: 20 January 2023
-//
-// Purpose: Implements Pseudo LRU. Tested for Powers of 2.
-//
-// Documentation: RISC-V System on Chip Design Chapter 7 (Figures 7.8 and 7.15 to 7.18)
-//
-// A component of the CORE-V-WALLY configurable RISC-V project.
-// https://github.com/openhwgroup/cvw
-//
-// Copyright (C) 2021-23 Harvey Mudd College & Oklahoma State University
-//
-// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
-//
-// Licensed under the Solderpad Hardware License v 2.1 (the “License”); you may not use this file 
-// except in compliance with the License, or, at your option, the Apache License version 2.0. You 
-// may obtain a copy of the License at
-//
-// https://solderpad.org/licenses/SHL-2.1/
-//
-// Unless required by applicable law or agreed to in writing, any work distributed under the 
-// License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
-// either express or implied. See the License for the specific language governing permissions 
-// and limitations under the License.
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-module cacheLRU
+module cacherand
   #(parameter NUMWAYS = 4, SETLEN = 9, OFFSETLEN = 5, NUMLINES = 128) (
   input  logic                clk, 
   input  logic                reset,
@@ -61,6 +31,7 @@ module cacheLRU
   // Rose: For some reason verilator does not like this.  I checked and it is not a circular path.
   logic [NUMWAYS-2:0]                  LRUUpdate;
   logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
+  logic [3:0] current; 
   /* verilator lint_on UNOPTFLAT */
 
   logic [NUMWAYS-1:0] FirstZero;
@@ -131,28 +102,59 @@ module cacheLRU
     localparam int1 = int0 + 1;
     assign Intermediate[node] = CurrLRU[node] ? int1[LOGNUMWAYS-1:0] : int0[LOGNUMWAYS-1:0];
   end
-
-  
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
   binencoder #(NUMWAYS) FirstZeroWayEncoder(FirstZero, FirstZeroWay);
-  mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, Intermediate[NUMWAYS-2], AllValid, VictimWayEnc);
+  mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, current, AllValid, VictimWayEnc);
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
+endmodule
 
-  // LRU storage must be reset for modelsim to run. However the reset value does not actually matter in practice.
-  // This is a two port memory.
-  // Every cycle must read from CacheSetData and each load/store must write the new LRU.
+module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
+  logic [NUMWAYS - 1:0] next; 
+  logic en; 
+  flopenl #(NUMWAYS) state(clk, rst, en, next, 4'b0010, current);
 
-  // note: Verilator lint doesn't like <= for array initialization (https://verilator.org/warn/BLKLOOPINIT?v=5.021)
-  // Move to = to keep Verilator happy and simulator running fast
-  always_ff @(posedge clk) begin
-    if (reset | (InvalidateCache & ~FlushStage)) 
-      for (int set = 0; set < NUMLINES; set++) LRUMemory[set] = '0; // exclusion-tag: initialize
-    else if(CacheEn) begin
-      // Because we are using blocking assignments, change to LRUMemory must occur after LRUMemory is used so we get the proper value
-      if(LRUWriteEn & (PAdr == CacheSetTag)) CurrLRU = NextLRU;
-      else                                   CurrLRU = LRUMemory[CacheSetTag];
-      if(LRUWriteEn)                         LRUMemory[PAdr] = NextLRU;
-    end
-  end
+  switch (NUMWAYS)
+    2:
+      assign next[1] = current[2] ^ current[0];
+      assign next[0] = current[1];
+      assign en = '1;
+    4:
+      assign next[3] = current[3] ^ current[0];
+      assign next[2:0] = current[3:1];
+      assign en = '1;
+    8:
+      assign next[7] = current[0] ^ current[2] ^ current[3] ^ current[4];
+      assign next[6:0] = current[7:1];
+      assign en = '1;
+    16:
+      assign next[15] = current[1] ^ current[2] ^ current[4] ^ current[5];
+      assign next[14:0] = current[15:1];
+      assign en = '1;
+    32:
+      assign next[31] = current[0] ^ current[3] ^ current[5] ^ current[6];
+      assign next[30:0] = current[31:1];
+      assign en = '1;
+    64:
+      assign next[63] = current[1] ^ current[2] ^ current[5] ^ current[7];
+      assign next[62:0] = current[63:1];
+      assign en = '1;
+    128:
+      assign next[127] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
+      assign next[126:0] = current[127:1];
+      assign en = '1;
+    default: en = 1'b0;
 
+//hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
+//its done -Present Karson (as of 4/30/2024)
+endmodule 
+
+module flopenl #(parameter WIDTH = 8, parameter type TYPE=logic [WIDTH-1:0]) (
+  input  logic clk, load, en,
+  input  TYPE d,
+  input  TYPE val,
+  output TYPE q);
+
+  always_ff @(posedge clk)
+    if (load)    q <= val;
+    else if (en) q <= d;
 endmodule
