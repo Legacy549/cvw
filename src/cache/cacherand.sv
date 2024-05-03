@@ -139,18 +139,22 @@ module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
       assign next[15] = current[1] ^ current[2] ^ current[4] ^ current[5];
       assign next[14:0] = current[15:1];
       assign en = '1;
-  ele
+  end
+  else if (NUMWAYS == 32) begin
       assign next[31] = current[0] ^ current[3] ^ current[5] ^ current[6];
       assign next[30:0] = current[31:1];
       assign en = '1;
-    64:
+  end
+  else if (NUMWAYS == 64) begin
       assign next[63] = current[1] ^ current[2] ^ current[5] ^ current[7];
       assign next[62:0] = current[63:1];
       assign en = '1;
-    128:
+  end
+  else if (NUMWAYS == 128) begin
       assign next[127] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
       assign next[126:0] = current[127:1];
       assign en = '1;
+  end
     default: en = 1'b0;
 
 //hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
