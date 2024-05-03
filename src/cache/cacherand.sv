@@ -120,24 +120,26 @@ module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
   logic en; 
   flopenl #(NUMWAYS) state(clk, rst, en, next, 4'b0010, current);
 
-  switch (NUMWAYS)
-    2:
+  if (NUMWAYS == 2) begin
       assign next[1] = current[2] ^ current[0];
       assign next[0] = current[1];
       assign en = '1;
-    4:
+  end
+  else if (NUMWAYS == 4) begin 
       assign next[3] = current[3] ^ current[0];
       assign next[2:0] = current[3:1];
       assign en = '1;
-    8:
+  end
+  else if (NUMWAYS == 8) begin
       assign next[7] = current[0] ^ current[2] ^ current[3] ^ current[4];
       assign next[6:0] = current[7:1];
       assign en = '1;
-    16:
+  end
+  else if (NUMWAYS == 16) begin
       assign next[15] = current[1] ^ current[2] ^ current[4] ^ current[5];
       assign next[14:0] = current[15:1];
       assign en = '1;
-    32:
+  ele
       assign next[31] = current[0] ^ current[3] ^ current[5] ^ current[6];
       assign next[30:0] = current[31:1];
       assign en = '1;

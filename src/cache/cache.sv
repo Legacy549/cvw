@@ -29,7 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //make new parameter D and I
 module cache import cvw::*; #(parameter cvw_t P,
-                              parameter PA_BITS, XLEN, LINELEN,  NUMLINES,  NUMWAYS, LOGBWPL, WORDLEN, MUXINTERVAL, READ_ONLY_CACHE) (
+                              parameter PA_BITS, XLEN, LINELEN,  NUMLINES,  NUMWAYS, LOGBWPL, WORDLEN, MUXINTERVAL, READ_ONLY_CACHE, CACHE_REPL) (
   input  logic                   clk,
   input  logic                   reset,
   input  logic                   Stall,             // Stall the cache, preventing new accesses. In-flight access finished but does not return to READY
@@ -129,14 +129,20 @@ module cache import cvw::*; #(parameter cvw_t P,
   //PLEASE LOOK AT FUTURE KARSON AND HAGEN
 
   //we need to have If that picks berween the two
-  if else()
   if(NUMWAYS > 1) begin:vict
+  if(CACHE_REPL == 0)begin
     cacheLRU #(NUMWAYS, SETLEN, OFFSETLEN, NUMLINES) cacheLRU(
       .clk, .reset, .FlushStage, .CacheEn, .HitWay, .ValidWay, .VictimWay, .CacheSetData, .CacheSetTag, .LRUWriteEn,
       .SetValid, .ClearValid, .PAdr(PAdr[SETTOP-1:OFFSETLEN]), .InvalidateCache);
+  end
+  else if (CACHE_REPL == 1)begin
+    cacherand #(NUMWAYS, SETLEN, OFFSETLEN, NUMLINES) cacherand(
+      .clk, .reset, .FlushStage, .CacheEn, .HitWay, .ValidWay, .VictimWay, .CacheSetData, .CacheSetTag, .LRUWriteEn,
+      .SetValid, .ClearValid, .PAdr(PAdr[SETTOP-1:OFFSETLEN]), .InvalidateCache);
+  end
   end else 
     assign VictimWay = 1'b1; // one hot.
-  end
+
   assign Hit = |HitWay;
   assign LineDirty = |DirtyWay;
   assign HitLineDirty = |HitDirtyWay;

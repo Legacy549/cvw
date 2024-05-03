@@ -75,6 +75,9 @@ localparam ICACHE_NUMWAYS = 32'd4;
 localparam ICACHE_WAYSIZEINBYTES = 32'd4096;
 localparam ICACHE_LINELENINBITS = 32'd512;
 localparam CACHE_SRAMLEN = 32'd128;
+//New Stuff:
+localparam ICACHE_REPL = 32'd1;
+localparam DCACHE_REPL = 32'd1;
 
 // Integer Divider Configuration
 // IDIV_BITSPERCYCLE must be 1, 2, or 4
@@ -192,7 +195,4 @@ localparam ZK_SUPPORTED = 1;
 
 // Memory synthesis configuration
 localparam USE_SRAM = 0;
-//New Stuff:
-localparam ICACHE_REPL = 1;
-localparam DCACHE_REPL = 1;
 `include "config-shared.vh"
