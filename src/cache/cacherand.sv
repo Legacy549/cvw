@@ -29,9 +29,10 @@ module cacherand
 
   /* verilator lint_off UNOPTFLAT */
   // Rose: For some reason verilator does not like this.  I checked and it is not a circular path.
-  logic [NUMWAYS-2:0]                  LRUUpdate;
+  logic [NUMWAYS-2:0]                 LRUUpdate;
   logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
-  logic [3:0] current; 
+  logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
+  logic [LOGNUMWAYS-1:0] current;
   /* verilator lint_on UNOPTFLAT */
 
   logic [NUMWAYS-1:0] FirstZero;
@@ -102,9 +103,15 @@ module cacherand
     localparam int1 = int0 + 1;
     assign Intermediate[node] = CurrLRU[node] ? int1[LOGNUMWAYS-1:0] : int0[LOGNUMWAYS-1:0];
   end
+//LFSR
+  LFSR #(NUMWAYS) LFSR(clk, reset, current);
+
+  //keep
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
   binencoder #(NUMWAYS) FirstZeroWayEncoder(FirstZero, FirstZeroWay);
+  //mux that we kept and edited
   mux2 #(LOGNUMWAYS) VictimMux(FirstZeroWay, current, AllValid, VictimWayEnc);
+
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 endmodule
 
