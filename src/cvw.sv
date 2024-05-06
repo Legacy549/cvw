@@ -82,8 +82,8 @@ typedef struct packed {
   int           DCACHE_WAYSIZEINBYTES;
   int           DCACHE_LINELENINBITS;
 //new stuff:
-  int           DCACHE_REPL;
-  int           ICACHE_REPL;
+  int           DCACHE_RPL;
+  int           ICACHE_RPL;
   int           ICACHE_NUMWAYS;
   int           ICACHE_WAYSIZEINBYTES;
   int           ICACHE_LINELENINBITS;
