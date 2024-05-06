@@ -115,7 +115,7 @@ module cacherand
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 endmodule
 
-module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
+module LFSR #(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
   logic [NUMWAYS - 1:0] next; 
   logic en; 
   flopenl #(NUMWAYS) state(clk, rst, en, next, 4'b0010, current);
@@ -160,14 +160,3 @@ module LFSR(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
 //hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
 //its done -Present Karson (as of 4/30/2024)
 endmodule 
-
-module flopenl #(parameter WIDTH = 8, parameter type TYPE=logic [WIDTH-1:0]) (
-  input  logic clk, load, en,
-  input  TYPE d,
-  input  TYPE val,
-  output TYPE q);
-
-  always_ff @(posedge clk)
-    if (load)    q <= val;
-    else if (en) q <= d;
-endmodule
