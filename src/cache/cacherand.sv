@@ -155,7 +155,6 @@ module LFSR #(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current)
       assign next[126:0] = current[127:1];
       assign en = '1;
   end
-    default: en = 1'b0;
 
 //hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
 //its done -Present Karson (as of 4/30/2024)
