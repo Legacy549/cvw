@@ -103,7 +103,7 @@ module cacherand
     assign Intermediate[node] = CurrLRU[node] ? int1[LOGNUMWAYS-1:0] : int0[LOGNUMWAYS-1:0];
   end
 //LFSR
-  LFSR #(NUMWAYS) LFSR(clk, reset, current);
+  LFSR #(NUMWAYS, LOGNUMWAYS) LFSR(clk, reset, current);
 
   //keep
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
