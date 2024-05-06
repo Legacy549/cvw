@@ -114,10 +114,13 @@ module cacherand
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 endmodule
 
-module LFSR #(parameter NUMWAYS)(input clk, rst, output [NUMWAYS - 1:0] current);
-  logic [NUMWAYS - 1:0] next; 
+module LFSR #(parameter NUMWAYS, LOGNUMWAYS)(input clk, rst, output [LOGNUMWAYS + 1:0] current);
+  logic [LOGNUMWAYS + 1:0] next; 
   logic en; 
-  flopenl #(NUMWAYS) state(clk, rst, en, next, 4'b0010, current);
+  logic[LOGNUMWAYS + 1:0] reset_val;
+  assign reset_val[1:0] = 2'b10;
+  assign reset_val[LOGNUMWAYS+1:2] = '0;
+  flopenl #(LOGNUMWAYS+2) state(clk, rst, en, next, reset_val, current);
 
   if (NUMWAYS == 2) begin
       assign next[1] = current[2] ^ current[0];
