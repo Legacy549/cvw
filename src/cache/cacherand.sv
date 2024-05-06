@@ -31,7 +31,6 @@ module cacherand
   // Rose: For some reason verilator does not like this.  I checked and it is not a circular path.
   logic [NUMWAYS-2:0]                 LRUUpdate;
   logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
-  logic [LOGNUMWAYS-1:0] Intermediate [NUMWAYS-2:0];
   logic [LOGNUMWAYS-1:0] current;
   /* verilator lint_on UNOPTFLAT */
 
