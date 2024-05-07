@@ -200,6 +200,6 @@ localparam cvw_t P = '{
   DIVb        : DIVb,
   DIVBLEN     : DIVBLEN,
 //new stuff:
-DCACHE_REPL : DCACHE_REPL,
-ICACHE_REPL : ICACHE_REPL
+  DCACHE_REPL : DCACHE_REPL,
+  ICACHE_REPL : ICACHE_REPL
 };
