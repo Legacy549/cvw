@@ -133,28 +133,28 @@ module LFSR #(parameter NUMWAYS, LOGNUMWAYS)(input clk, rst, output [LOGNUMWAYS 
       assign en = '1;
   end
   else if (NUMWAYS == 8) begin
-      assign next[7] = current[0] ^ current[2] ^ current[3] ^ current[4];
-      assign next[6:0] = current[7:1];
+      assign next[4] = current[0] ^ current[2] ^ current[3] ^ current[4];
+      assign next[3:0] = current[4:1];
       assign en = '1;
   end
   else if (NUMWAYS == 16) begin
-      assign next[15] = current[1] ^ current[2] ^ current[4] ^ current[5];
-      assign next[14:0] = current[15:1];
+      assign next[5] = current[1] ^ current[2] ^ current[4] ^ current[5];
+      assign next[4:0] = current[5:1];
       assign en = '1;
   end
   else if (NUMWAYS == 32) begin
-      assign next[31] = current[0] ^ current[3] ^ current[5] ^ current[6];
-      assign next[30:0] = current[31:1];
+      assign next[6] = current[0] ^ current[3] ^ current[5] ^ current[6];
+      assign next[5:0] = current[6:1];
       assign en = '1;
   end
   else if (NUMWAYS == 64) begin
-      assign next[63] = current[1] ^ current[2] ^ current[5] ^ current[7];
-      assign next[62:0] = current[63:1];
+      assign next[7] = current[1] ^ current[2] ^ current[5] ^ current[7];
+      assign next[6:0] = current[7:1];
       assign en = '1;
   end
   else if (NUMWAYS == 128) begin
-      assign next[127] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
-      assign next[126:0] = current[127:1];
+      assign next[8] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
+      assign next[7:0] = current[8:1];
       assign en = '1;
   end
 
