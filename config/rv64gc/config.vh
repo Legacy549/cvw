@@ -193,7 +193,7 @@ localparam ZK_SUPPORTED = 1;
 // Memory synthesis configuration
 localparam USE_SRAM = 0;
 //New Stuff:
-localparam ICACHE_REPL = 32'd0;
-localparam DCACHE_REPL = 32'd0;
+localparam ICACHE_REPL = 32'd1;
+localparam DCACHE_REPL = 32'd1;
 `include "config-shared.vh"
 

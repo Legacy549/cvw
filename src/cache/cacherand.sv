@@ -2,14 +2,14 @@ module cacherand
   #(parameter NUMWAYS = 4, SETLEN = 9, OFFSETLEN = 5, NUMLINES = 128) (
   input  logic                clk, 
   input  logic                reset,
-  input  logic                FlushStage,
+  input  logic                FlushStage, //not 
   input  logic                CacheEn,         // Enable the cache memory arrays.  Disable hold read data constant
   input  logic [NUMWAYS-1:0]  HitWay,          // Which way is valid and matches PAdr's tag
   input  logic [NUMWAYS-1:0]  ValidWay,        // Which ways for a particular set are valid, ignores tag
   input  logic [SETLEN-1:0]   CacheSetData,    // Cache address, the output of the address select mux, NextAdr, PAdr, or FlushAdr
   input  logic [SETLEN-1:0]   CacheSetTag,     // Cache address, the output of the address select mux, NextAdr, PAdr, or FlushAdr
   input  logic [SETLEN-1:0]   PAdr,            // Physical address 
-  input  logic                LRUWriteEn,      // Update the LRU state
+  input  logic                LRUWriteEn, //hot     // Update the LRU state
   input  logic                SetValid,        // Set the dirty bit in the selected way and set
   input  logic                ClearValid,      // Clear the dirty bit in the selected way and set
   input  logic                InvalidateCache, // Clear all valid bits
@@ -38,6 +38,9 @@ module cacherand
   logic [LOGNUMWAYS-1:0] FirstZeroWay;
   logic [LOGNUMWAYS-1:0] VictimWayEnc;
 
+  // this is the logic for enable
+  logic en_get
+  assign en_get = CacheEn & !FlushStage;
   binencoder #(NUMWAYS) hitwayencoder(HitWay, HitWayEncoded);
 
   assign AllValid = &ValidWay;
@@ -103,7 +106,8 @@ module cacherand
     assign Intermediate[node] = CurrLRU[node] ? int1[LOGNUMWAYS-1:0] : int0[LOGNUMWAYS-1:0];
   end
 //LFSR
-  LFSR #(NUMWAYS, LOGNUMWAYS) LFSR(clk, reset, current);
+
+  LFSR #(NUMWAYS, LOGNUMWAYS) LFSR(clk, reset, en_get, current);
 
   //keep
   priorityonehot #(NUMWAYS) FirstZeroEncoder(~ValidWay, FirstZero);
@@ -114,9 +118,8 @@ module cacherand
   decoder #(LOGNUMWAYS) decoder (VictimWayEnc, VictimWay);
 endmodule
 
-module LFSR #(parameter NUMWAYS, LOGNUMWAYS)(input clk, rst, output [LOGNUMWAYS + 1:0] current);
+module LFSR #(parameter NUMWAYS, LOGNUMWAYS)(input clk, rst, en, output [LOGNUMWAYS + 1:0] current);
   logic [LOGNUMWAYS + 1:0] next; 
-  logic en; 
   logic[LOGNUMWAYS + 1:0] reset_val;
   assign reset_val[1:0] = 2'b10;
   assign reset_val[LOGNUMWAYS+1:2] = '0;
@@ -125,37 +128,30 @@ module LFSR #(parameter NUMWAYS, LOGNUMWAYS)(input clk, rst, output [LOGNUMWAYS 
   if (NUMWAYS == 2) begin
       assign next[1] = current[2] ^ current[0];
       assign next[0] = current[1];
-      assign en = '1;
   end
   else if (NUMWAYS == 4) begin 
       assign next[3] = current[3] ^ current[0];
       assign next[2:0] = current[3:1];
-      assign en = '1;
   end
   else if (NUMWAYS == 8) begin
       assign next[4] = current[0] ^ current[2] ^ current[3] ^ current[4];
       assign next[3:0] = current[4:1];
-      assign en = '1;
   end
   else if (NUMWAYS == 16) begin
       assign next[5] = current[1] ^ current[2] ^ current[4] ^ current[5];
       assign next[4:0] = current[5:1];
-      assign en = '1;
   end
   else if (NUMWAYS == 32) begin
       assign next[6] = current[0] ^ current[3] ^ current[5] ^ current[6];
       assign next[5:0] = current[6:1];
-      assign en = '1;
   end
   else if (NUMWAYS == 64) begin
       assign next[7] = current[1] ^ current[2] ^ current[5] ^ current[7];
       assign next[6:0] = current[7:1];
-      assign en = '1;
   end
   else if (NUMWAYS == 128) begin
       assign next[8] = current[3] ^ current[4] ^ current[5] ^ current[6]^ current[8];
       assign next[7:0] = current[8:1];
-      assign en = '1;
   end
 
 //hey future karson and hagen, read the paper on LFSR's the bit number for 32 bit and over is smaller, like 128 is supposed to 9 
