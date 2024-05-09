@@ -73,7 +73,7 @@ localparam DCACHE_WAYSIZEINBYTES = 32'd4096;
 localparam DCACHE_LINELENINBITS = 32'd512;
 localparam ICACHE_NUMWAYS = 32'd4;
 localparam ICACHE_WAYSIZEINBYTES = 32'd4096;
-localparam ICACHE_LINELENINBITS = 32'd512;
+localparam ICACHE_LINELENINBITS = 32'd512;s
 localparam CACHE_SRAMLEN = 32'd128;
 //New Stuff:
 
@@ -194,7 +194,7 @@ localparam ZK_SUPPORTED = 1;
 // Memory synthesis configuration
 localparam USE_SRAM = 0;
 
-localparam ICACHE_REPL = 32'd1;
-localparam DCACHE_REPL = 32'd1;
+localparam ICACHE_REPL = 32'd0;
+localparam DCACHE_REPL = 32'd0;
 
 `include "config-shared.vh"
