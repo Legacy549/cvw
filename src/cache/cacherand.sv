@@ -39,8 +39,8 @@ module cacherand
   logic [LOGNUMWAYS-1:0] VictimWayEnc;
 
   // this is the logic for enable
-  logic en_get
-  assign en_get = CacheEn & !FlushStage;
+  logic en_get;
+  assign en_get = (LRUWriteEn & !FlushStage);
   binencoder #(NUMWAYS) hitwayencoder(HitWay, HitWayEncoded);
 
   assign AllValid = &ValidWay;
